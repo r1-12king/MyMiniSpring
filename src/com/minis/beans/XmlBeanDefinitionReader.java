@@ -2,6 +2,7 @@ package com.minis.beans;
 
 import org.dom4j.Element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,13 +27,28 @@ public class XmlBeanDefinitionReader {
 
             List<Element> propertyElements = element.elements("property");
             PropertyValues PVS = new PropertyValues();
+            List<String> refs = new ArrayList<>();
             for(Element propertyElement : propertyElements){
                 String name = propertyElement.attributeValue("name");
                 String value = propertyElement.attributeValue("value");
                 String type = propertyElement.attributeValue("type");
-                PVS.addPropertyValue(new PropertyValue(type, name, value));
+                String pRef = propertyElement.attributeValue("ref");
+                String pV = "";
+                boolean isRef = false;
+                if(value!=null && !value.equals("")) {
+                    isRef = false;
+                    pV = value;
+                }else if(pRef!=null && !pRef.equals("")){
+                    isRef = true;
+                    pV = pRef;
+                    refs.add(pRef);
+                }
+                PVS.addPropertyValue(new PropertyValue(type, name, value, isRef));
             }
             beanDefinition.setPropertyValues(PVS);
+            // 设置依赖关系
+            String[] refArray = refs.toArray(new String[0]);
+            beanDefinition.setDependsOn(refArray);
 
             List<Element> constructorElements = element.elements("constructor-arg");
             ArgumentValues AVS = new ArgumentValues();

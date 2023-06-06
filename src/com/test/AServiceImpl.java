@@ -17,6 +17,8 @@ public class AServiceImpl implements AService {
 
     private String property2;
 
+    private BaseService ref1;
+
     public AServiceImpl() {
     }
 

@@ -1,6 +1,7 @@
 package com.minis.beans;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -150,36 +151,76 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         }
 
         // 处理属性
+        handleProperties(beanDefinition, clz, obj);
+        return obj;
+    }
 
-        PropertyValues propertyValues = beanDefinition.getPropertyValues();
-        if(!propertyValues.isEmpty()) {
-            for (int i = 0; i < propertyValues.size(); i++) {
-                PropertyValue propertyValue = propertyValues.getPropertyValueList().get(i);
-                String pName = propertyValue.getName();
-                String pType = propertyValue.getType();
-                Object pValue = propertyValue.getValue();
-                Class<?>[] paramTypes = new Class<?>[1];
-                if ("String".equals(pType) || "java.lang.String".equals(pType)) {
-                    paramTypes[0] = String.class;
-                } else if ("Integer".equals(pType) || "java.lang.Integer".equals(pType)) {
-                    paramTypes[0] = Integer.class;
-                } else if ("int".equals(pType)) {
-                    paramTypes[0] = int.class;
-                } else {
-                    // 默认为string
-                    paramTypes[0] = String.class;
-                }
-                Object[] paramValues = new Object[1];
-                paramValues[0] = pValue;
-                String meathodName = "set" + pName.substring(0, 1).toUpperCase(Locale.ROOT) + pName.substring(1);
-                try {
-                    Method method = clz.getMethod(meathodName, paramTypes);
-                    method.invoke(obj, paramValues);
-                } catch (Exception e) {
-                    e.printStackTrace();
+    /**
+     * handle properties
+     *
+     * @param bd
+     * @param clz
+     * @param obj
+     */
+    private void handleProperties(BeanDefinition bd, Class<?> clz, Object obj) {
+        System.out.println("handle properties for bean : " + bd.getId());
+        PropertyValues propertyValues = bd.getPropertyValues();
+        if (propertyValues != null) {
+            if (!propertyValues.isEmpty()) {
+                for (int i = 0; i < propertyValues.size(); i++) {
+                    PropertyValue propertyValue = propertyValues.getPropertyValueList().get(i);
+                    String pName = propertyValue.getName();
+                    String pType = propertyValue.getType();
+                    Object pValue = propertyValue.getValue();
+                    boolean isRef = propertyValue.isRef();
+                    Class<?>[] paramTypes = new Class<?>[1];
+                    Object[] paramValues = new Object[1];
+                    if (!isRef) {
+                        if ("String".equals(pType) || "java.lang.String".equals(pType)) {
+                            paramTypes[0] = String.class;
+                            paramValues[0] = pValue;
+                        } else if ("Integer".equals(pType) || "java.lang.Integer".equals(pType)) {
+                            paramTypes[0] = Integer.class;
+                            paramValues[0] = Integer.valueOf((String) pValue);
+                        } else if ("int".equals(pType)) {
+                            paramTypes[0] = int.class;
+                            paramValues[0] = Integer.valueOf((String) pValue).intValue();
+                        } else {
+                            paramTypes[0] = String.class;
+                            paramValues[0] = pValue;
+                        }
+                    } else { //is ref, create the dependent beans
+                        try {
+                            paramTypes[0] = Class.forName(pType);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            paramValues[0] = getBean((String) pValue);
+                        } catch (BeansException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    String methodName = "set" + pName.substring(0, 1).toUpperCase() + pName.substring(1);
+                    Method method = null;
+                    try {
+                        method = clz.getMethod(methodName, paramTypes);
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        method.invoke(obj, paramValues);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-        return obj;
     }
 }
