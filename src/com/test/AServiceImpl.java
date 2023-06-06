@@ -46,5 +46,13 @@ public class AServiceImpl implements AService {
     @Override
     public void sayHello() {
         System.out.println("a service 1 say hello");
-    } 
-} 
+    }
+
+    public BaseService getRef1() {
+        return ref1;
+    }
+
+    public void setRef1(BaseService ref1) {
+        this.ref1 = ref1;
+    }
+}

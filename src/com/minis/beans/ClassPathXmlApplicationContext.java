@@ -14,14 +14,21 @@ import com.minis.context.ApplicationEventPublisher;
  */
 public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
 
-    BeanFactory beanFactory;
+    SimpleBeanFactory beanFactory;
 
     public ClassPathXmlApplicationContext(String fileName) {
+        this(fileName, true);
+    }
+
+    public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) {
         Resource resource = new ClassPathXmlResource(fileName);
-        SimpleBeanFactory factory = new SimpleBeanFactory();
-        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+        SimpleBeanFactory simpleBeanFactory = new SimpleBeanFactory();
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(simpleBeanFactory);
         reader.loadBeanDefinitions(resource);
-        this.beanFactory = factory;
+        this.beanFactory = simpleBeanFactory;
+        if (isRefresh) {
+            this.beanFactory.refresh();
+        }
     }
 
 
@@ -40,17 +47,21 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
         this.beanFactory.registerBean(beanName, obj);
     }
 
+    @Override
     public void publishEvent(ApplicationEvent event) {
     }
 
+    @Override
     public boolean isSingleton(String name) {
         return false;
     }
 
+    @Override
     public boolean isPrototype(String name) {
         return false;
     }
 
+    @Override
     public Class getType(String name) {
         return null;
     }

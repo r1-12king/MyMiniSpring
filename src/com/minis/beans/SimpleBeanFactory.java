@@ -19,7 +19,9 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
 
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
-    private List beanDefinitionNames = new ArrayList<>();
+    private List<String> beanDefinitionNames = new ArrayList<>();
+
+    private final Map<String, Object> earlySingletonObjects = new HashMap<String, Object>(16);
 
     public SimpleBeanFactory() {
 
@@ -34,20 +36,26 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
      */
     @Override
     public Object getBean(String beanName) throws BeansException {
+        // 先尝试从容器中直接获取bean实例
         Object singleton = this.getSingleton(beanName);
         if (singleton == null) {
-            BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
-            if (beanDefinition == null) {
-                // 初始化的时候会初始化 beanName
-                throw new BeansException();
+            //如果没有实例，则尝试从毛胚实例中获取
+            singleton = this.earlySingletonObjects.get(beanName);
+            if (singleton == null) {
+                // 如果连毛胚都没有，则创建bean实例并注册
+                BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
+                if (beanDefinition == null) {
+                    // 初始化的时候会初始化 beanName
+                    throw new BeansException();
+                }
+                singleton = createBean(beanDefinition);
+                this.registerSingleton(beanName, singleton);
+                // 预留beanpostprocessor位置
+                // step 1: postProcessBeforeInitialization
+                // step 2: afterPropertiesSet
+                // step 3: init-method
+                // step 4: postProcessAfterInitialization
             }
-            try {
-                singleton = Class.forName(beanDefinition.getClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            this.registerSingleton(beanName, singleton);
-
         }
         return singleton;
     }
@@ -110,48 +118,74 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         return this.beanDefinitionMap.containsKey(name);
     }
 
-
+    /**
+     * 描述：
+     *      1、createBean() 方法中调用了一个 doCreateBean(bd) 方法，专门负责创建早期的毛胚实例。
+     *          毛胚实例创建好后会放在 earlySingletonObjects 结构中，然后 createBean() 方法再调用 handleProperties() 补齐这些 property 的值。
+     *      2、在 getBean() 方法中，首先要判断有没有已经创建好的 bean，有的话直接取出来，如果没有就检查 earlySingletonObjects 中有没有相应的毛胚 Bean，有的话直接取出来，没有的话就去创建，
+     *          并且会根据 Bean 之间的依赖关系把相关的 Bean 全部创建好
+     * @param beanDefinition
+     * @return
+     */
     private Object createBean(BeanDefinition beanDefinition) {
         Class<?> clz = null;
-        Object obj = null;
-        Constructor<?> con = null;
+
+        // 创建毛坯实例
+        Object obj = doCreateBean(beanDefinition);
+        this.earlySingletonObjects.put(beanDefinition.getId(), obj);
+
         try {
-           clz = Class.forName(beanDefinition.getClassName());
-           ArgumentValues argumentValues = beanDefinition.getConstructorArgumentValues();
-           if(!argumentValues.isEmpty()){
-               Class<?>[] paramTypes = new Class<?>[argumentValues.getArgumentCount()];
-               Object[] paramValues = new Object[argumentValues.getArgumentCount()];
-               for (int i=0; i<argumentValues.getArgumentCount(); i++){
-                   ArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
-                   if ("String".equals(argumentValue.getType()) || "java.lang.String".equals(argumentValue.getType())) {
-                       paramTypes[i] = String.class;
-                       paramValues[i] = argumentValue.getValue();
-                   } else if ("Integer".equals(argumentValue.getType()) || "java.lang.Integer".equals(argumentValue.getType())) {
-                       paramTypes[i] = Integer.class;
-                       paramValues[i] = Integer.valueOf((String) argumentValue.getValue());
-                   } else if ("int".equals(argumentValue.getType())) {
-                       paramTypes[i] = int.class;
-                       paramValues[i] = Integer.valueOf((String) argumentValue.getValue());
-                   } else { //默认为string
-                       paramTypes[i] = Class.forName(argumentValue.getType());
-                       paramValues[i] = argumentValue.getValue();
-                   }
-               }
-               try { //按照特定构造器创建实例
-                   con = clz.getConstructor(paramTypes);
-                   obj = con.newInstance(paramValues);
-               }catch(Exception e){
-                   e.printStackTrace();
-               }
-           }else{
-               obj = clz.newInstance();
-           }
-        }catch(Exception e){
+            // 返回一个类
+            clz = Class.forName(beanDefinition.getClassName());
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
         // 处理属性
         handleProperties(beanDefinition, clz, obj);
+        return obj;
+    }
+
+
+    private Object doCreateBean(BeanDefinition bd){
+        Class clz = null;
+        Object obj = null;
+        Constructor con = null;
+        try {
+            clz = Class.forName(bd.getClassName());
+            ArgumentValues argumentValues = bd.getConstructorArgumentValues();
+            if(!argumentValues.isEmpty()){
+                Class<?>[] paramTypes = new Class<?>[argumentValues.getArgumentCount()];
+                Object[] paramValues = new Object[argumentValues.getArgumentCount()];
+                for (int i=0; i<argumentValues.getArgumentCount(); i++){
+                    ArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
+                    if ("String".equals(argumentValue.getType()) || "java.lang.String".equals(argumentValue.getType())) {
+                        paramTypes[i] = String.class;
+                        paramValues[i] = argumentValue.getValue();
+                    } else if ("Integer".equals(argumentValue.getType()) || "java.lang.Integer".equals(argumentValue.getType())) {
+                        paramTypes[i] = Integer.class;
+                        paramValues[i] = Integer.valueOf((String) argumentValue.getValue());
+                    } else if ("int".equals(argumentValue.getType())) {
+                        paramTypes[i] = int.class;
+                        paramValues[i] = Integer.valueOf((String) argumentValue.getValue());
+                    } else { //默认为string
+                        paramTypes[i] = Class.forName(argumentValue.getType());
+                        paramValues[i] = argumentValue.getValue();
+                    }
+                }
+                try { //按照特定构造器创建实例
+                    con = clz.getConstructor(paramTypes);
+                    obj = con.newInstance(paramValues);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }else{
+                obj = clz.newInstance();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        System.out.println(bd.getId() + " bean created. " + bd.getClassName() + " : " + obj.toString());
         return obj;
     }
 
@@ -220,6 +254,21 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
                         e.printStackTrace();
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * 包装方法 refresh()
+     * 可以看出，在 Spring 体系中，Bean 是结合在一起同时创建完毕的。为了减少它内部的复杂性，Spring 对外提供了一个很重要的包装方法：refresh()。
+     * 具体的包装方法也很简单，就是对所有的 Bean 调用了一次 getBean()，利用 getBean() 方法中的 createBean() 创建 Bean 实例，就可以只用一个方法把容器中所有的 Bean 的实例创建出来了。
+     */
+    public void refresh() {
+        for (String beanName : beanDefinitionNames) {
+            try {
+                getBean(beanName);
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

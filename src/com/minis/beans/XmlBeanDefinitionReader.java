@@ -43,7 +43,7 @@ public class XmlBeanDefinitionReader {
                     pV = pRef;
                     refs.add(pRef);
                 }
-                PVS.addPropertyValue(new PropertyValue(type, name, value, isRef));
+                PVS.addPropertyValue(new PropertyValue(type, name, pV, isRef));
             }
             beanDefinition.setPropertyValues(PVS);
             // 设置依赖关系
@@ -56,11 +56,12 @@ public class XmlBeanDefinitionReader {
                 String name = e.attributeValue("name");
                 String value = e.attributeValue("value");
                 String type = e.attributeValue("type");
-                AVS.addArgumentValue(new ArgumentValue(type, name, value));
+                AVS.addArgumentValue(new ArgumentValue(value, type, name));
             }
             beanDefinition.setConstructorArgumentValues(AVS);
 
             this.simpleBeanFactory.registerBeanDefinition(beanDefinition);
         }
+        System.out.println("BeanDefinition加载完毕");
     }
 }
