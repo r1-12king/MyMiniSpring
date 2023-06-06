@@ -1,4 +1,12 @@
-package com.minis.beans;
+package com.minis.beans.factory.support;
+
+import com.minis.beans.factory.config.ConstructorArgumentValue;
+import com.minis.beans.factory.config.ConstructorArgumentValues;
+import com.minis.beans.factory.config.BeanDefinition;
+import com.minis.beans.BeansException;
+import com.minis.beans.PropertyValue;
+import com.minis.beans.PropertyValues;
+import com.minis.beans.factory.BeanFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -6,7 +14,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -153,12 +160,12 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         Constructor con = null;
         try {
             clz = Class.forName(bd.getClassName());
-            ArgumentValues argumentValues = bd.getConstructorArgumentValues();
-            if(!argumentValues.isEmpty()){
-                Class<?>[] paramTypes = new Class<?>[argumentValues.getArgumentCount()];
-                Object[] paramValues = new Object[argumentValues.getArgumentCount()];
-                for (int i=0; i<argumentValues.getArgumentCount(); i++){
-                    ArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
+            ConstructorArgumentValues constructorArgumentValues = bd.getConstructorArgumentValues();
+            if(!constructorArgumentValues.isEmpty()){
+                Class<?>[] paramTypes = new Class<?>[constructorArgumentValues.getArgumentCount()];
+                Object[] paramValues = new Object[constructorArgumentValues.getArgumentCount()];
+                for (int i = 0; i< constructorArgumentValues.getArgumentCount(); i++){
+                    ConstructorArgumentValue argumentValue = constructorArgumentValues.getIndexedArgumentValue(i);
                     if ("String".equals(argumentValue.getType()) || "java.lang.String".equals(argumentValue.getType())) {
                         paramTypes[i] = String.class;
                         paramValues[i] = argumentValue.getValue();

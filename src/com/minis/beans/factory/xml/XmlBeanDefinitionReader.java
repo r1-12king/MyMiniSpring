@@ -1,5 +1,12 @@
-package com.minis.beans;
+package com.minis.beans.factory.xml;
 
+import com.minis.beans.factory.config.ConstructorArgumentValue;
+import com.minis.beans.factory.config.ConstructorArgumentValues;
+import com.minis.beans.factory.config.BeanDefinition;
+import com.minis.beans.PropertyValue;
+import com.minis.beans.PropertyValues;
+import com.minis.beans.Resource;
+import com.minis.beans.factory.support.SimpleBeanFactory;
 import org.dom4j.Element;
 
 import java.util.ArrayList;
@@ -51,12 +58,12 @@ public class XmlBeanDefinitionReader {
             beanDefinition.setDependsOn(refArray);
 
             List<Element> constructorElements = element.elements("constructor-arg");
-            ArgumentValues AVS = new ArgumentValues();
+            ConstructorArgumentValues AVS = new ConstructorArgumentValues();
             for(Element e : constructorElements){
                 String name = e.attributeValue("name");
                 String value = e.attributeValue("value");
                 String type = e.attributeValue("type");
-                AVS.addArgumentValue(new ArgumentValue(value, type, name));
+                AVS.addArgumentValue(new ConstructorArgumentValue(value, type, name));
             }
             beanDefinition.setConstructorArgumentValues(AVS);
 

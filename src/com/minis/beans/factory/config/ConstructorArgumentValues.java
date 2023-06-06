@@ -1,4 +1,4 @@
-package com.minis.beans;
+package com.minis.beans.factory.config;
 
 
 import java.util.*;
@@ -8,14 +8,14 @@ import java.util.*;
  * @date: 2023/6/1 22:19
  * @description:
  */
-public class ArgumentValues {
-    private final List<ArgumentValue> argumentValueList = new ArrayList<>();
-    public ArgumentValues() {
+public class ConstructorArgumentValues {
+    private final List<ConstructorArgumentValue> argumentValueList = new ArrayList<>();
+    public ConstructorArgumentValues() {
     }
-    public void addArgumentValue(ArgumentValue argumentValue) {
+    public void addArgumentValue(ConstructorArgumentValue argumentValue) {
         this.argumentValueList.add(argumentValue);
     }
-    public ArgumentValue getIndexedArgumentValue(int index) {
+    public ConstructorArgumentValue getIndexedArgumentValue(int index) {
         return this.argumentValueList.get(index);
     }
     public int getArgumentCount() {

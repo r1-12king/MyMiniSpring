@@ -1,4 +1,4 @@
-package com.minis.beans;
+package com.minis.beans.factory.config;
 
 
 /**
@@ -6,17 +6,17 @@ package com.minis.beans;
  * @date: 2023/6/1 22:15
  * @description:
  */
-public class ArgumentValue {
+public class ConstructorArgumentValue {
     private String value;
     private String type;
     private String name;
 
-    public ArgumentValue(String value, String type) {
+    public ConstructorArgumentValue(String value, String type) {
         this.value = value;
         this.type = type;
     }
 
-    public ArgumentValue(String value, String type, String name) {
+    public ConstructorArgumentValue(String value, String type, String name) {
         this.value = value;
         this.type = type;
         this.name = name;
