@@ -7,26 +7,26 @@ package com.minis.beans;
  * @description:
  */
 public class ArgumentValue {
-    private Object value;
+    private String value;
     private String type;
     private String name;
 
-    public ArgumentValue(Object value, String type) {
+    public ArgumentValue(String value, String type) {
         this.value = value;
         this.type = type;
     }
 
-    public ArgumentValue(Object value, String type, String name) {
+    public ArgumentValue(String value, String type, String name) {
         this.value = value;
         this.type = type;
         this.name = name;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
