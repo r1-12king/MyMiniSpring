@@ -18,3 +18,9 @@
 4、Bean 之间的依赖注入
 5、解决循环依赖
 ![](.note_images/e719ab16.png)
+
+### v0.4 到 v0.5 版本的说明
+通过 Autowired 这个注解实现了 Bean 的注入，这样程序员不用再在 XML 配置文件中手动配置 property，而是在类中声明 property 的时候直接加上注解即可，框架使用的机制是名称匹配，这也是 Spring 所支持的一种匹配方式。
+
+接着我们提取了 BeanFactory 接口，定义了一个抽象的 AbstractBeanFactory。通过这个抽象类，将 Bean 工厂需要做的事情的框架搭建出来，然后在具体实现类中完善细节。这种程序结构称为 interface-abstract class-class（接口抽象类），是一种做框架时常用的设计模式。
+![](.note_images/e05d7e0d.png)

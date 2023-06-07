@@ -1,5 +1,6 @@
 package com.minis.beans.factory.xml;
 
+import com.minis.beans.factory.config.AutowireCapableBeanFactory;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
 import com.minis.beans.factory.config.BeanDefinition;
@@ -19,10 +20,10 @@ import java.util.List;
  */
 public class XmlBeanDefinitionReader {
 
-    SimpleBeanFactory simpleBeanFactory;
+    AutowireCapableBeanFactory beanFactory;
 
-    public XmlBeanDefinitionReader(SimpleBeanFactory simpleBeanFactory){
-        this.simpleBeanFactory = simpleBeanFactory;
+    public XmlBeanDefinitionReader(AutowireCapableBeanFactory beanFactory){
+        this.beanFactory = beanFactory;
     }
 
     public void loadBeanDefinitions(Resource resource){
@@ -67,7 +68,7 @@ public class XmlBeanDefinitionReader {
             }
             beanDefinition.setConstructorArgumentValues(AVS);
 
-            this.simpleBeanFactory.registerBeanDefinition(beanDefinition);
+            this.beanFactory.registerBeanDefinition(beanDefinition);
         }
         System.out.println("BeanDefinition加载完毕");
     }
