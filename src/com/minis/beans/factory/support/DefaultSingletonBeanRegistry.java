@@ -52,7 +52,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     }
 
     @Override
-    public String[] getSingletonNames(String beanName) {
+    public String[] getSingletonNames() {
         return this.beanNames.toArray(new String[0]);
     }
 

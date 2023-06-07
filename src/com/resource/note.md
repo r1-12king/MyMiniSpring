@@ -36,4 +36,13 @@
 7、【抽象类】AbstractBF，主要是refresh()，invokeInitMethod()，createBean()，构造器注入和属性注入。
 8、AbstractAutowireCapableBF，提供成员List<BeanPostProcessor>！也因此它可以通过该成员进行更多的bean处理器操作，即add、get、apply在此有了具体实现。
 9、DefaultListableBF，其实没有啥，打开一看只Override了【接口】ListableBF中的4个方法，其余是默认继承。（即沿着类结构往上一堆，上面也说过了）
-![](.note_images/52fbd82d.png)
+![MyMiniSpring](.note_images/52fbd82d.png)
+![SpringFramework](.note_images/2454e5f9.png)
+
+完善ApplicationContext
+- 抽取 ApplicationContext 接口，实现更多有关上下文的内容。
+- 支持事件的发布与监听。
+- 新增 AbstractApplicationContext，规范刷新上下文 refresh 方法的步骤规范，且将每一步骤进行抽象，提供默认实现类，同时支持自定义。
+- 完成刷新之后发布事件
+
+![](.note_images/aa3f1f8f.png)

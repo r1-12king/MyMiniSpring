@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
  **/
 public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
 
-    private AutowireCapableBeanFactory beanFactory;
+    private BeanFactory beanFactory;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -52,14 +52,10 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-
-    }
-
-    public AutowireCapableBeanFactory getBeanFactory() {
-        return beanFactory;
-    }
-
-    public void setBeanFactory(AutowireCapableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
+    }
+
+    public BeanFactory getBeanFactory() {
+        return beanFactory;
     }
 }

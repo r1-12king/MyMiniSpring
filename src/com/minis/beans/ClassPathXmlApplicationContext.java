@@ -1,16 +1,19 @@
 package com.minis.beans;
 
 
-import com.minis.beans.factory.BeanFactory;
-import com.minis.beans.factory.config.AutowireCapableBeanFactory;
 import com.minis.beans.factory.support.AutowiredAnnotationBeanPostProcessor;
+import com.minis.beans.factory.support.BeanFactoryPostProcessor;
 import com.minis.beans.factory.support.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
-import com.minis.beans.factory.support.SimpleBeanFactory;
 import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
+import com.minis.context.AbstractApplicationContext;
 import com.minis.context.ApplicationEvent;
 import com.minis.context.ApplicationEventPublisher;
+import com.minis.context.ApplicationListener;
+import com.minis.context.ContextRefreshEvent;
+import com.minis.context.SimpleApplicationEventPublisher;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,9 +24,11 @@ import java.util.List;
  * 加载解析的内容，构建 BeanDefinition。
  * 读取 BeanDefinition 的配置信息，实例化 Bean，然后把它注入到 BeanFactory 容器中。
  */
-public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
+public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     DefaultListableBeanFactory beanFactory;
+
+    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
     public ClassPathXmlApplicationContext(String fileName) {
         this(fileName, true);
@@ -50,18 +55,53 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
      * @throws BeansException
      * @throws IllegalStateException
      */
+    @Override
     public void refresh() throws BeansException, IllegalStateException {
         // Initialize other special beans in specific context subclasses.
         registerBeanPostProcessors(this.beanFactory);
         onRefresh();
     }
 
-    private void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+    @Override
+    protected void registerListeners() {
+        ApplicationListener listener = new ApplicationListener();
+        this.getApplicationEventPublisher().addApplicationListener(listener);
+    }
+
+    @Override
+    protected void initApplicationEventPublisher() {
+        ApplicationEventPublisher aep = new SimpleApplicationEventPublisher();
+        this.setApplicationEventPublisher(aep);
+    }
+
+    @Override
+    public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
+        this.beanFactoryPostProcessors.add(postProcessor);
+    }
+
+    @Override
+    protected void postProcessBeanFactory(ConfigurableListableBeanFactory bf) {
+
+    }
+
+    @Override
+    public void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
     }
 
-    private void onRefresh() {
+    @Override
+    public void onRefresh() {
         this.beanFactory.refresh();
+    }
+
+    @Override
+    protected void finishRefresh() {
+        publishEvent(new ContextRefreshEvent("Context Refreshed..."));
+    }
+
+    @Override
+    public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
+        return null;
     }
 
 
@@ -82,6 +122,12 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
 
     @Override
     public void publishEvent(ApplicationEvent event) {
+        this.getApplicationEventPublisher().publishEvent(event);
+    }
+
+    @Override
+    public void addApplicationListener(ApplicationListener listener) {
+        this.getApplicationEventPublisher().addApplicationListener(listener);
     }
 
     @Override
