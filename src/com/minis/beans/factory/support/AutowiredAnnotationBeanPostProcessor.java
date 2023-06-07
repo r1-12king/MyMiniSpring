@@ -50,6 +50,11 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         return null;
     }
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+
+    }
+
     public AutowireCapableBeanFactory getBeanFactory() {
         return beanFactory;
     }

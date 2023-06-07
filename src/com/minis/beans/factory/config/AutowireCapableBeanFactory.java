@@ -14,45 +14,27 @@ import java.util.List;
  * @date: 2023/6/1 22:19
  * @description: 用一个列表 beanPostProcessors 记录所有的 Bean 处理器，这样可以按照需求注册若干个不同用途的处理器，然后调用处理器。
  */
-public class AutowireCapableBeanFactory extends AbstractBeanFactory {
+public interface AutowireCapableBeanFactory  extends BeanFactory{
+    int AUTOWIRE_NO = 0;
+    int AUTOWIRE_BY_NAME = 1;
+    int AUTOWIRE_BY_TYPE = 2;
 
-    private final List<AutowiredAnnotationBeanPostProcessor> beanPostProcessors = new ArrayList<>();
+    /**
+     *
+     * @param existingBean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException;
 
-    public void addBeanPostProcessor(AutowiredAnnotationBeanPostProcessor beanPostProcessor) {
-        this.beanPostProcessors.remove(beanPostProcessor);
-        this.beanPostProcessors.add(beanPostProcessor);
-    }
+    /**
+     *
+     * @param existingBean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException;
 
-    public int getBeanPostProcessorCount() {
-        return this.beanPostProcessors.size();
-    }
-
-    public List<AutowiredAnnotationBeanPostProcessor> getBeanPostProcessors() {
-        return this.beanPostProcessors;
-    }
-
-    @Override
-    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException {
-        Object result = existingBean;
-        for (AutowiredAnnotationBeanPostProcessor beanProcessor : getBeanPostProcessors()) {
-            beanProcessor.setBeanFactory(this);
-            result = beanProcessor.postProcessBeforeInitialization(result, beanName);
-            if (result == null) {
-                return null;
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException {
-        Object result = existingBean;
-        for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
-            result = beanProcessor.postProcessAfterInitialization(result,  beanName);
-            if (result == null) {
-                return null;
-            }
-        }
-        return result;
-    }
 }

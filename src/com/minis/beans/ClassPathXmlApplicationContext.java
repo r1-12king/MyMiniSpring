@@ -4,6 +4,8 @@ package com.minis.beans;
 import com.minis.beans.factory.BeanFactory;
 import com.minis.beans.factory.config.AutowireCapableBeanFactory;
 import com.minis.beans.factory.support.AutowiredAnnotationBeanPostProcessor;
+import com.minis.beans.factory.support.ConfigurableListableBeanFactory;
+import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.beans.factory.support.SimpleBeanFactory;
 import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
 import com.minis.context.ApplicationEvent;
@@ -21,7 +23,7 @@ import java.util.List;
  */
 public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
 
-    AutowireCapableBeanFactory beanFactory;
+    DefaultListableBeanFactory beanFactory;
 
     public ClassPathXmlApplicationContext(String fileName) {
         this(fileName, true);
@@ -29,7 +31,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
 
     public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) {
         Resource resource = new ClassPathXmlResource(fileName);
-        AutowireCapableBeanFactory beanFactory = new AutowireCapableBeanFactory();
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.loadBeanDefinitions(resource);
         this.beanFactory = beanFactory;
@@ -42,12 +44,19 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
         }
     }
 
-    public void refresh() throws BeansException, IllegalStateException { // Register bean processors that intercept bean creation.
-        registerBeanPostProcessors(this.beanFactory); // Initialize other special beans in specific context subclasses.
+    /**
+     * Register bean processors that intercept bean creation.
+     *
+     * @throws BeansException
+     * @throws IllegalStateException
+     */
+    public void refresh() throws BeansException, IllegalStateException {
+        // Initialize other special beans in specific context subclasses.
+        registerBeanPostProcessors(this.beanFactory);
         onRefresh();
     }
 
-    private void registerBeanPostProcessors(AutowireCapableBeanFactory beanFactory) {
+    private void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
     }
 
@@ -66,7 +75,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
         return this.beanFactory.containsBean(beanName);
     }
 
-    @Override
+
     public void registerBean(String beanName, Object obj) {
         this.beanFactory.registerBean(beanName, obj);
     }

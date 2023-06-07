@@ -8,7 +8,7 @@ import com.minis.beans.factory.annotation.Autowired;
  * @date: 2023-06-06 14:41
  **/
 public class BaseService {
-//    @Autowired
+    @Autowired
     private BaseBaseService bbs;
 
     public BaseBaseService getBbs() {

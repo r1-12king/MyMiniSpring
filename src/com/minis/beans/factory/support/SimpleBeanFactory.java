@@ -73,11 +73,6 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
     }
 
     @Override
-    public void registerBean(String beanName, Object obj) {
-        this.registerSingleton(beanName, obj);
-    }
-
-    @Override
     public boolean isSingleton(String name) {
         return this.beanDefinitionMap.get(name).isSingleton();
     }
