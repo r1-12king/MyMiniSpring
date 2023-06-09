@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author: luguilin
  * @date: 2023/5/23 22:50
- * @description:
+ * @description: 默认的 单例bean仓库
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 

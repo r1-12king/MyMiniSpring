@@ -4,6 +4,7 @@ import com.minis.beans.BeansException;
 import com.minis.beans.PropertyValue;
 import com.minis.beans.PropertyValues;
 import com.minis.beans.factory.BeanFactory;
+import com.minis.beans.factory.config.AutowireCapableBeanFactory;
 import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry, AutowireCapableBeanFactory {
     private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
     protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
     protected List<String> beanDefinitionNames = new ArrayList<>();
@@ -141,7 +142,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     private Object createBean(BeanDefinition beanDefinition) {
         Class<?> clz = null;
-        //创建毛胚bean实例
+        //创建毛胚bean实例  通过构造函数创建Bean实例--此时还没有进行属性处理
         Object obj = doCreateBean(beanDefinition);
         //存放到毛胚实例缓存中
         this.earlySingletonObjects.put(beanDefinition.getId(), obj);
@@ -256,8 +257,4 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         this.beanDefinitionMap.put(beanDefinition.getId(), beanDefinition);
     }
 
-    // 定有如下两个方法，分别是在 Bean 处理类初始化之前和之后执行的方法。这两个方法交给具体的继承类去实现。
-    abstract public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException;
-
-    abstract public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException;
 }
