@@ -1,6 +1,8 @@
 package com.test;
 
 
+import com.minis.web.RequestMapping;
+
 /**
  * @description:
  * @author: luguilin
@@ -13,5 +15,10 @@ public class HelloWorldBean {
 
     public String doPost() {
         return "hello world!";
+    }
+
+    @RequestMapping("/test")
+    public String doTest() {
+        return "hello world for doGet!";
     }
 }

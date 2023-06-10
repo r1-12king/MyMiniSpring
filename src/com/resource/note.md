@@ -1,3 +1,4 @@
+## ioc
 ### v0.1 到 v0.2 版本的说明
 1. readxml方法从资源文件读取内容并存入beanDefinitions，这件事情有两个地方不确定，资源的来源不同、资源的格式不同，抽象的Resource的接口，它的不同子类从不同的来源读取， 但是最终都是以Resource接口的形式提供给外部访问的，这样解决了第一个不确定来源的问题； 但是resource接口中被迭代的object又是根据不同格式不同而不同的， element只是xml格式的，所以又定义了BeanDefinitionReader接口， 它的不同子类可以读取不同格式的资源来形成beanDefinition 。
 2. instanceBeans方法取消了 。
@@ -46,3 +47,12 @@
 - 完成刷新之后发布事件
 
 ![](.note_images/aa3f1f8f.png)
+
+
+
+## Spring MVC
+### mvc 0.1
++ DispatcherServlet，它是 Tomcat 中注册的唯一的 Servlet，它承担了所有请求的处理功能。由它来解析请求中的路径与业务类 Bean 中方法的映射关系，调用 Bean 的相应方法，返回给 response。
++ 这种映射关系的建立，我们一开始是让用户自己在 XML 配置文件中手动声明，然后我们引入 RequestMapping 注解，扫描包中的类，检查注解，自动注册映射关系。 
++ 这样我们初步实现了比较原始的 MVC。在这个框架下，应用程序员不用再关心 Servlet 的使用，他们可以直接建立业务类，加上注解就可以运行。
+![](.note_images/81bdcaed.png)
