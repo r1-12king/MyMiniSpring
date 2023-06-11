@@ -56,3 +56,17 @@
 + 这种映射关系的建立，我们一开始是让用户自己在 XML 配置文件中手动声明，然后我们引入 RequestMapping 注解，扫描包中的类，检查注解，自动注册映射关系。 
 + 这样我们初步实现了比较原始的 MVC。在这个框架下，应用程序员不用再关心 Servlet 的使用，他们可以直接建立业务类，加上注解就可以运行。
 ![](.note_images/81bdcaed.png)
+  
+### mvc 0.2
+当 Servlet 服务器如 Tomcat 启动的时候，要遵守下面的时序。
+1. 在启动 Web 项目时，Tomcat 会读取 web.xml 中的 comtext-param 节点，获取这个 Web 应用的全局参数。
+2. Tomcat 创建一个 ServletContext 实例，是全局有效的。
+3. 将 context-param 的参数转换为键值对，存储在 ServletContext 里。
+4. 创建 listener 中定义的监听类的实例，按照规定 Listener 要继承自 ServletContextListener。监听器初始化方法是 contextInitialized(ServletContextEvent event)。初始化方法中可以通过 event.getServletContext().getInitParameter(“name”) 方法获得上下文环境中的键值对。
+5. 当 Tomcat 完成启动，也就是 contextInitialized 方法完成后，再对 Filter 过滤器进行初始化。
+6. servlet 初始化：有一个参数 load-on-startup，它为正数的值越小优先级越高，会自动启动，如果为负数或未指定这个参数，会在 servlet 被调用时再进行初始化。init-param 是一个 servlet 整个范围之内有效的参数，在 servlet 类的 init() 方法中通过 this.getInitParameter(″param1″) 方法获得。
+
++ 在 Tomcat 启动的过程中先拿 context-param，初始化 Listener，在初始化过程中，创建 IoC 容器构建 WAC（WebApplicationContext），加载所管理的 Bean 对象，并把 WAC 关联到 servlet context 里。 
++ 然后在 DispatcherServlet 初始化的时候，从 sevletContext 里获取属性拿到 WAC，放到 servlet 的属性中，然后拿到 Servlet 的配置路径参数，之后再扫描路径下的包，调用 refresh() 方法加载 Bean，最后配置 url mapping。
++ 我们之所以有办法整合这二者，核心的原因是 Servlet 规范中规定的时序，从 listerner 到 filter 再到 servlet，每一个环节都预留了接口让我们有机会干预，写入我们需要的代码。
++ 我们在学习过程中，更重要的是要学习如何构建可扩展体系的思路，在我们自己的软件开发过程中，记住不要将程序流程固定死，那样没有任何扩展的余地，而应该想着预留出一些接口理清时序，让别人在关节处也可以插入自己的逻辑。

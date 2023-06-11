@@ -22,6 +22,12 @@ import java.util.Map;
  */
 public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
+    /**
+     * web上下文环境
+     */
+    private WebApplicationContext webApplicationContext;
+
     // 存储需要扫描的package列表
     private List<String> packageNames = new ArrayList<>();
 
@@ -62,7 +68,10 @@ public class DispatcherServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        // 后期配置文件的位置和名称
+        // 改造 DispatcherServlet，关联 WAC
+        this.webApplicationContext = (WebApplicationContext) this.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+
+        // 后期配置文件的位置和名称  -- servlet参数
         sContextConfigLocation = config.getInitParameter("contextConfigLocation");
 
         URL xmlPath = null;

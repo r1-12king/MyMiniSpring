@@ -2,6 +2,18 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:web="http://xmlns.jcp.org/xml/ns/javaee"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID">
+  <!--声明应用全局的初始化参数。-->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>com/minis/web/applicationContext.xml</param-value>
+  </context-param>
+  <listener>
+    <listener-class>
+      com.minis.web.ContextLoaderListener
+    </listener-class>
+  </listener>
+
+  <!--  声明servlet类。-->
   <servlet>
     <servlet-name>minisMVC</servlet-name>
     <servlet-class>com.minis.web.DispatcherServlet</servlet-class>
