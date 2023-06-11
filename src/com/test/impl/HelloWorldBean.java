@@ -1,4 +1,4 @@
-package com.test;
+package com.test.impl;
 
 
 import com.minis.web.RequestMapping;

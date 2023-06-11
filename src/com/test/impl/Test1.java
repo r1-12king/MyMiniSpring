@@ -1,7 +1,8 @@
-package com.test;
+package com.test.impl;
 
 import com.minis.beans.BeansException;
 import com.minis.beans.ClassPathXmlApplicationContext;
+import com.test.AService;
 
 public class Test1 {
     public static void main(String[] args) throws BeansException {

@@ -1,4 +1,6 @@
-package com.test;
+package com.test.impl;
+
+import com.test.AService;
 
 public class AServiceImpl implements AService {
 

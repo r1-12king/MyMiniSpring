@@ -1,6 +1,7 @@
-package com.test;
+package com.test.impl;
 
 import com.minis.beans.factory.annotation.Autowired;
+import com.test.AService;
 
 /**
  * @description:
@@ -9,13 +10,13 @@ import com.minis.beans.factory.annotation.Autowired;
  **/
 public class BaseService {
     @Autowired
-    private BaseBaseService bbs;
+    private AService.BaseBaseService bbs;
 
-    public BaseBaseService getBbs() {
+    public AService.BaseBaseService getBbs() {
         return bbs;
     }
 
-    public void setBbs(BaseBaseService bbs) {
+    public void setBbs(AService.BaseBaseService bbs) {
         this.bbs = bbs;
     }
 

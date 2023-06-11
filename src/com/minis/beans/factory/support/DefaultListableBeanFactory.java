@@ -1,16 +1,18 @@
 package com.minis.beans.factory.support;
 
+import com.minis.beans.BeansException;
+import com.minis.beans.factory.config.AbstractAutowireCapableBeanFactory;
+import com.minis.beans.factory.config.BeanDefinition;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.minis.beans.BeansException;
-import com.minis.beans.factory.config.AbstractAutowireCapableBeanFactory;
-import com.minis.beans.factory.config.BeanDefinition;
-
 
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory{
+
+	ConfigurableListableBeanFactory parentBeanFactory;
 
 	@Override
 	public int getBeanDefinitionCount() {
@@ -19,7 +21,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	@Override
 	public String[] getBeanDefinitionNames() {
-		return (String[]) this.beanDefinitionNames.toArray();
+		return this.beanDefinitionNames.toArray(new String[0]);
 	}
 
 	@Override
@@ -70,5 +72,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Override
 	public String[] getDependenciesForBean(String beanName) {
 		return new String[0];
+	}
+
+	public void setParent(ConfigurableListableBeanFactory beanFactory) {
+		this.parentBeanFactory = beanFactory;
+	}
+
+	@Override
+	public Object getBean(String beanName) throws BeansException{
+		Object result = super.getBean(beanName);
+		if (result == null) {
+			result = this.parentBeanFactory.getBean(beanName);
+		}
+		return result;
 	}
 }

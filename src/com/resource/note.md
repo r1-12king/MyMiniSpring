@@ -70,3 +70,8 @@
 + 然后在 DispatcherServlet 初始化的时候，从 sevletContext 里获取属性拿到 WAC，放到 servlet 的属性中，然后拿到 Servlet 的配置路径参数，之后再扫描路径下的包，调用 refresh() 方法加载 Bean，最后配置 url mapping。
 + 我们之所以有办法整合这二者，核心的原因是 Servlet 规范中规定的时序，从 listerner 到 filter 再到 servlet，每一个环节都预留了接口让我们有机会干预，写入我们需要的代码。
 + 我们在学习过程中，更重要的是要学习如何构建可扩展体系的思路，在我们自己的软件开发过程中，记住不要将程序流程固定死，那样没有任何扩展的余地，而应该想着预留出一些接口理清时序，让别人在关节处也可以插入自己的逻辑。
+
+### mvc 0.3
+拆解 Dispatcher。
+1. 首先拆解的是 ApplicationContext，现在我们有了两级上下文，一级用于 IoC 容器，我们叫 parent 上下文，一级用于 Web 上下文，WebApplicationContext 持有对 parent 上下文的引用。
+2. 方便起见，我们还增加了 @RequestMapping 注解来声明 URL 映射，然后新增 RequestMappingHandlerMapping 与 RequestMappingHandlerAdapter，分别包装 URL 映射关系和映射后的处理过程。

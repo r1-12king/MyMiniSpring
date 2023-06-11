@@ -55,12 +55,12 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
      * @throws BeansException
      * @throws IllegalStateException
      */
-    @Override
-    public void refresh() throws BeansException, IllegalStateException {
-        // Initialize other special beans in specific context subclasses.
-        registerBeanPostProcessors(this.beanFactory);
-        onRefresh();
-    }
+//    @Override
+//    public void refresh() throws BeansException, IllegalStateException {
+//        // Initialize other special beans in specific context subclasses.
+//        registerBeanPostProcessors(this.beanFactory);
+//        onRefresh();
+//    }
 
     @Override
     protected void registerListeners() {
@@ -86,7 +86,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+        this.beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
     }
 
     @Override

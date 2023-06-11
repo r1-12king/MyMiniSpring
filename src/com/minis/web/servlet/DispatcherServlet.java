@@ -1,4 +1,10 @@
-package com.minis.web;
+package com.minis.web.servlet;
+
+import com.minis.web.AnnotationConfigWebApplicationContext;
+import com.minis.web.MappingValue;
+import com.minis.web.RequestMapping;
+import com.minis.web.WebApplicationContext;
+import com.minis.web.XmlScanComponentHelper;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -23,10 +29,14 @@ import java.util.Map;
 public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = DispatcherServlet.class.getName() + ".CONTEXT";
+
     /**
      * web上下文环境
      */
     private WebApplicationContext webApplicationContext;
+
+    private WebApplicationContext parentApplicationContext;
 
     // 存储需要扫描的package列表
     private List<String> packageNames = new ArrayList<>();
@@ -54,6 +64,16 @@ public class DispatcherServlet extends HttpServlet {
     private List<String> controllerNames = new ArrayList<>();
     private Map<String, MappingValue> mappingValues;
 
+    private HandlerMapping handlerMapping;
+    private HandlerAdapter handlerAdapter;
+
+    protected void initHandlerMappings(WebApplicationContext wac) {
+        this.handlerMapping = new RequestMappingHandlerMapping(wac);
+    }
+    protected void initHandlerAdapters(WebApplicationContext wac) {
+        this.handlerAdapter = new RequestMappingHandlerAdapter(wac);
+    }
+
     public DispatcherServlet() {
         super();
     }
@@ -69,7 +89,7 @@ public class DispatcherServlet extends HttpServlet {
         super.init(config);
 
         // 改造 DispatcherServlet，关联 WAC
-        this.webApplicationContext = (WebApplicationContext) this.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        this.parentApplicationContext = (WebApplicationContext) this.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 
         // 后期配置文件的位置和名称  -- servlet参数
         sContextConfigLocation = config.getInitParameter("contextConfigLocation");
@@ -85,6 +105,8 @@ public class DispatcherServlet extends HttpServlet {
         // 解析xml 配置文件
         this.packageNames = XmlScanComponentHelper.getNodeValue(xmlPath);
 
+        this.webApplicationContext = new AnnotationConfigWebApplicationContext(sContextConfigLocation, this.parentApplicationContext);
+
         refresh();
     }
 
@@ -95,8 +117,40 @@ public class DispatcherServlet extends HttpServlet {
     protected void refresh() {
         // 初始化 controller
         initController();
-        // 初始化 url 映射
-        initMapping();
+        initHandlerMappings(this.webApplicationContext);
+        initHandlerAdapters(this.webApplicationContext);
+    }
+
+
+    /**
+     * 同来替代doGet()方法
+     * @param request
+     * @param response
+     */
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) {
+        request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webApplicationContext);
+        try {
+            doDispatch(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+        }
+    }
+
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpServletRequest processedRequest = request;
+        HandlerMethod handlerMethod = null;
+
+        handlerMethod = this.handlerMapping.getHandler(processedRequest);
+        if (handlerMethod == null) {
+            return;
+        }
+
+        HandlerAdapter ha = this.handlerAdapter;
+
+        ha.handle(processedRequest, response, handlerMethod);
     }
 
 
@@ -108,41 +162,41 @@ public class DispatcherServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String sPath = request.getServletPath();
-        System.out.println(sPath);
-        if (!this.urlMappingNames.contains(sPath)) {
-            return;
-        }
-
-        Object obj = null;
-        Object objResult = null;
-        try {
-            Method method = this.mappingMethods.get(sPath);
-            obj = this.mappingObjs.get(sPath);
-            objResult = method.invoke(obj);
-        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        assert objResult != null;
-        response.getWriter().append(objResult.toString());
-    }
-
-
-    /**
-     * 重写doPost 方法
-     *
-     * @param request
-     * @param response
-     * @throws ServletException
-     * @throws IOException
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
-    }
+//    @Override
+//    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        String sPath = request.getServletPath();
+//        System.out.println(sPath);
+//        if (!this.urlMappingNames.contains(sPath)) {
+//            return;
+//        }
+//
+//        Object obj = null;
+//        Object objResult = null;
+//        try {
+//            Method method = this.mappingMethods.get(sPath);
+//            obj = this.mappingObjs.get(sPath);
+//            objResult = method.invoke(obj);
+//        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+//            e.printStackTrace();
+//        }
+//
+//        assert objResult != null;
+//        response.getWriter().append(objResult.toString());
+//    }
+//
+//
+//    /**
+//     * 重写doPost 方法
+//     *
+//     * @param request
+//     * @param response
+//     * @throws ServletException
+//     * @throws IOException
+//     */
+//    @Override
+//    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        doGet(request, response);
+//    }
 
 
     /**
