@@ -10,13 +10,13 @@ import com.test.AService;
  **/
 public class BaseService {
     @Autowired
-    private AService.BaseBaseService bbs;
+    private BaseBaseService bbs;
 
-    public AService.BaseBaseService getBbs() {
+    public BaseBaseService getBbs() {
         return bbs;
     }
 
-    public void setBbs(AService.BaseBaseService bbs) {
+    public void setBbs(BaseBaseService bbs) {
         this.bbs = bbs;
     }
 
@@ -26,5 +26,9 @@ public class BaseService {
     public void sayHello() {
         System.out.println("Base Service says Hello");
         bbs.sayHello();
+    }
+
+    public String getHello() {
+        return "Base Service get Hello.";
     }
 }

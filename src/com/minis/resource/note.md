@@ -75,3 +75,7 @@
 拆解 Dispatcher。
 1. 首先拆解的是 ApplicationContext，现在我们有了两级上下文，一级用于 IoC 容器，我们叫 parent 上下文，一级用于 Web 上下文，WebApplicationContext 持有对 parent 上下文的引用。
 2. 方便起见，我们还增加了 @RequestMapping 注解来声明 URL 映射，然后新增 RequestMappingHandlerMapping 与 RequestMappingHandlerAdapter，分别包装 URL 映射关系和映射后的处理过程。
+
+MVC 里前后端参数的自动转换
+1. 为了完成传入参数的自动绑定，我们使用了 WebDataBinder，它内部用 BeanWrapperImpl 对象，把属性值的 map 绑定到目标对象上。绑定的过程中，要对每一种数据类型分别进行格式转换，对基本的标准数据类型，由框架给定默认的转换器，但是对于别的数据类型或者是文化差异很大的数据类型，如日期型，我们可以通过 CustomEditor 机制让用户自定义。
+2. 通过数据的自动绑定，我们不用再通过 request.getParameter() 方法手动获取参数值，再手动转成对象了，这些 HTTP 请求里的参数值就自动变成了后端方法里的参数对象值，非常便利。实际上后面我们会看到，这种两层之间的数据自动绑定和转换，在许多场景中都非常有用，比如 Jdbc Template。

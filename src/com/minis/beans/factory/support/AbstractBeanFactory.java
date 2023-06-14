@@ -253,8 +253,5 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
     }
 
-    public void registerBeanDefinition(BeanDefinition beanDefinition) {
-        this.beanDefinitionMap.put(beanDefinition.getId(), beanDefinition);
-    }
 
 }

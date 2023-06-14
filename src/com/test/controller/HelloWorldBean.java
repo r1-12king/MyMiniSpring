@@ -1,7 +1,8 @@
-package com.test.impl;
+package com.test.controller;
 
 
 import com.minis.web.RequestMapping;
+import com.test.entity.User;
 
 /**
  * @description:
@@ -19,6 +20,12 @@ public class HelloWorldBean {
 
     @RequestMapping("/test")
     public String doTest() {
+        return "hello world for doGet!";
+    }
+
+    @RequestMapping("/test2")
+    public String doTest2(User user) {
+        System.out.println(user);
         return "hello world for doGet!";
     }
 }

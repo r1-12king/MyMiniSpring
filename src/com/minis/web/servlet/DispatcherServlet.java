@@ -118,7 +118,7 @@ public class DispatcherServlet extends HttpServlet {
         // 初始化 controller
         initController();
         initHandlerMappings(this.webApplicationContext);
-        initHandlerAdapters(this.webApplicationContext);
+        initHandlerAdapters(this.parentApplicationContext);
     }
 
 
