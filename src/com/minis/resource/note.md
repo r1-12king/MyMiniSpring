@@ -85,3 +85,26 @@ MVC 里前后端参数的自动转换
 2. 我们可以看到，作为一个框架，我们没有规定数据要如何转换格式，而是交给了 MessageConverter 去做；
 3. 我们也没有规定如何找到这些目标页面，而是交给了 ViewResolver 去做；
 4. 我们同样没有规定如何去渲染前端界面，而是通过 View 这个接口去做。我们可以自由地实现具体的场景。
+
+### mvc 总结
+1. MVC 重点回顾
+MVC 是 Spring 框架的核心组成部分之一，负责实现一个 Web 应用程序的模型视图控制器模式。Spring 框架提供了丰富的组件和工具，而 MVC 负责处理一个 Web 应用程序中的核心过程，例如请求处理、数据转换、模板渲染和视图管理等。而 MVC 和 Spring 的结合，就像是车与引擎的结合一样，给 Web 应用程序提供了强大而且可靠的性能和灵活性，让我们能够快速、方便地搭建高性能、可靠的 Web 应用程序。
+因为 Spring 是 Java 实现的，也因为发明人 Rod Johnson 先生自己是 Java 团队 Servlet 规范的专家组成员，所以很自然，他的 MVC 的实现是基于 Servlet 的。利用 Servlet 的机制，把这种功效发挥到了极致，快速构造了完整的 Web 程序结构，让我们大开眼界。
+
+2. 那我们在课程中是怎么实现 MVC 的呢？
+首先我们利用 Servlet 机制，用一个单一的 Servlet 拦截所有请求，由它来分派任务，这样实现了原始的 MVC 结构。然后呢，我们把 MVC 和 IoC 结合在一起，在 Servlet 容器启动的时候，给上下文环境里注入 IoC 容器，使得在 Servlet 里可以访问到 IoC 容器里的 Bean。
+之后我们进一步解耦 MVC 结构，独立出请求处理器，还用一个简洁统一的注解方式，把 Web 请求方便地定位到后台处理的类和方法里，实现 Spring 的 RequestHandler。
+在前后台打通的时候，实现数据参数的自动转换，也就是说先把 Web 请求的传入参数，自动地从文本转换成对象，实现数据绑定功能。对于返回数据，也自动根据用户需求进行格式化转换，这样实现了 Spring 里面的 data binder 和 data conversion。
+
+最后回到前端 View，如果有前端引擎，在 Spring 中引用，把数据自动渲染到前端。我们可以利用 Servlet 机制、MVC 结构、IoC 容器、RequestHandler 和数据绑定等功能，确保前后台的有效沟通和良好的交互体验，实现一个高效可靠的 Web 应用程序。你学会了吗？
+
+3. 思考题
+![mvc-0.1](.note_images/4ac35db4.png)
+   
+![mvc-0.2](.note_images/f0f72d12.png)
+
+![mvc-0.3](.note_images/81f99b4a.png)
+
+![mvc-0.3](.note_images/b0452197.png)
+
+![mvc-0.4](.note_images/986d7cfc.png)
