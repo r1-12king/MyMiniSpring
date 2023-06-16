@@ -1,5 +1,6 @@
 package com.minis.web.servlet;
 
+import com.minis.beans.BeansException;
 import com.minis.web.AnnotationConfigWebApplicationContext;
 import com.minis.web.MappingValue;
 import com.minis.web.RequestMapping;
@@ -13,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -27,26 +27,15 @@ import java.util.Map;
  * Servlet implementation class DispatcherServlet
  */
 public class DispatcherServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-
     public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = DispatcherServlet.class.getName() + ".CONTEXT";
-
-    /**
-     * web上下文环境
-     */
-    private WebApplicationContext webApplicationContext;
-
-    private WebApplicationContext parentApplicationContext;
-
-    // 存储需要扫描的package列表
-    private List<String> packageNames = new ArrayList<>();
-
+    public static final String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
+    public static final String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
+    public static final String VIEW_RESOLVER_BEAN_NAME = "viewResolver";
+    private static final long serialVersionUID = 1L;
     // 用于存储controller名称和对象之间的映射关系
     private final Map<String, Object> controllerObjs = new HashMap<>();
-
     // 用于存储controller名称和类之间的映射关系
     private final Map<String, Class<?>> controllerClasses = new HashMap<>();
-
     // 保存自定义的requestMapping 名称的列表
     private final List<String> urlMappingNames = new ArrayList<>();
     /**
@@ -58,6 +47,13 @@ public class DispatcherServlet extends HttpServlet {
      * url 和 对象的映射关系
      */
     private final Map<String, Object> mappingObjs = new HashMap<>();
+    /**
+     * web上下文环境
+     */
+    private WebApplicationContext webApplicationContext;
+    private WebApplicationContext parentApplicationContext;
+    // 存储需要扫描的package列表
+    private List<String> packageNames = new ArrayList<>();
     private String sContextConfigLocation;
 
     // 保存controller名称数组列表
@@ -67,20 +63,40 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerMapping handlerMapping;
     private HandlerAdapter handlerAdapter;
 
-    protected void initHandlerMappings(WebApplicationContext wac) {
-        this.handlerMapping = new RequestMappingHandlerMapping(wac);
-    }
-    protected void initHandlerAdapters(WebApplicationContext wac) {
-        this.handlerAdapter = new RequestMappingHandlerAdapter(wac);
-    }
+    private ViewResolver viewResolver;
+
 
     public DispatcherServlet() {
         super();
     }
 
+    protected void initHandlerMappings(WebApplicationContext wac) {
+        try {
+            this.handlerMapping = (HandlerMapping) wac.getBean(HANDLER_MAPPING_BEAN_NAME);
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void initHandlerAdapters(WebApplicationContext wac) {
+        try {
+            this.handlerAdapter = (HandlerAdapter) wac.getBean(HANDLER_ADAPTER_BEAN_NAME);
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void initViewResolvers(WebApplicationContext wac) {
+        try {
+            this.viewResolver = (ViewResolver) wac.getBean(VIEW_RESOLVER_BEAN_NAME);
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * init：在servlet创建时调用，默认第一次访问的时候被调用，但也可以通过配置可以实现服务器启动时调用，创建的对象会被缓存起来。
+     *
      * @param config
      * @throws ServletException
      */
@@ -94,17 +110,6 @@ public class DispatcherServlet extends HttpServlet {
         // 后期配置文件的位置和名称  -- servlet参数
         sContextConfigLocation = config.getInitParameter("contextConfigLocation");
 
-        URL xmlPath = null;
-        try {
-            // 获取 minisMVC-servlet.xml的位置
-            xmlPath = this.getServletContext().getResource(sContextConfigLocation);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        // 解析xml 配置文件
-        this.packageNames = XmlScanComponentHelper.getNodeValue(xmlPath);
-
         this.webApplicationContext = new AnnotationConfigWebApplicationContext(sContextConfigLocation, this.parentApplicationContext);
 
         refresh();
@@ -116,14 +121,16 @@ public class DispatcherServlet extends HttpServlet {
      */
     protected void refresh() {
         // 初始化 controller
-        initController();
+//        initController();
         initHandlerMappings(this.webApplicationContext);
-        initHandlerAdapters(this.parentApplicationContext);
+        initHandlerAdapters(this.webApplicationContext);
+        initViewResolvers(this.webApplicationContext);
     }
 
 
     /**
      * 同来替代doGet()方法
+     *
      * @param request
      * @param response
      */
@@ -134,14 +141,14 @@ public class DispatcherServlet extends HttpServlet {
             doDispatch(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
         }
     }
 
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpServletRequest processedRequest = request;
         HandlerMethod handlerMethod = null;
+        ModelAndView mv = null;
 
         handlerMethod = this.handlerMapping.getHandler(processedRequest);
         if (handlerMethod == null) {
@@ -150,7 +157,32 @@ public class DispatcherServlet extends HttpServlet {
 
         HandlerAdapter ha = this.handlerAdapter;
 
-        ha.handle(processedRequest, response, handlerMethod);
+        mv = ha.handle(processedRequest, response, handlerMethod);
+
+        render(processedRequest, response, mv);
+    }
+
+    protected void render(HttpServletRequest request, HttpServletResponse response, ModelAndView mv) throws Exception {
+        if (mv == null) {
+            response.getWriter().flush();
+            response.getWriter().close();
+            return;
+        }
+
+        String sTarget = mv.getViewName();
+        Map<String, Object> modelMap = mv.getModel();
+        View view = resolveViewName(sTarget, modelMap, request);
+        view.render(modelMap, request, response);
+
+    }
+
+    protected View resolveViewName(String viewName, Map<String, Object> model,
+                                   HttpServletRequest request) throws Exception {
+        if (this.viewResolver != null) {
+            View view = viewResolver.resolveViewName(viewName);
+            return view;
+        }
+        return null;
     }
 
 
@@ -255,12 +287,12 @@ public class DispatcherServlet extends HttpServlet {
         //目录下的文件或者子目录
         for (File file : dir.listFiles()) {
             //对子目录递归扫描
-            if(file.isDirectory()){
-                scanPackage(packageName+"."+file.getName());
+            if (file.isDirectory()) {
+                scanPackage(packageName + "." + file.getName());
             }//类文件
-            else{
-                String controllerName = packageName +"."
-                        +file.getName().replace(".class", "");
+            else {
+                String controllerName = packageName + "."
+                        + file.getName().replace(".class", "");
                 tempControllerNames.add(controllerName);
             }
         }

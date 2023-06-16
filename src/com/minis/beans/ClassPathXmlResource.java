@@ -25,7 +25,8 @@ public class ClassPathXmlResource implements Resource {
      */
     public ClassPathXmlResource(String fileName) {
         SAXReader saxReader = new SAXReader();
-        URL xmlPath = this.getClass().getClassLoader().getResource(fileName); //将配置文件装载进来，生成一个迭代器，可以用于遍历
+        //将配置文件装载进来，生成一个迭代器，可以用于遍历
+        URL xmlPath = this.getClass().getClassLoader().getResource(fileName);
         try {
             this.document = saxReader.read(xmlPath);
             this.rootElement = document.getRootElement();

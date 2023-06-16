@@ -1,9 +1,11 @@
 package com.minis.web.servlet;
 
 import com.minis.beans.BeansException;
+import com.minis.http.converter.HttpMessageConverter;
 import com.minis.web.WebApplicationContext;
 import com.minis.web.WebDataBinder;
 import com.minis.web.WebDataBinderFactory;
+import com.minis.web.bind.annotation.ResponseBody;
 import com.test.WebBindingInitializer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +24,23 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
     WebApplicationContext wac;
     private WebBindingInitializer webBindingInitializer = null;
 
+    /**
+     * 增加一个属性 messageConverter，通过它来转换数据
+     */
+    private HttpMessageConverter messageConverter = null;
+
+    public HttpMessageConverter getMessageConverter() {
+        return messageConverter;
+    }
+
+    public void setMessageConverter(HttpMessageConverter messageConverter) {
+        this.messageConverter = messageConverter;
+    }
+
+
+    public RequestMappingHandlerAdapter() {
+    }
+
     public RequestMappingHandlerAdapter(WebApplicationContext wac) {
         this.wac = wac;
         try {
@@ -32,19 +51,21 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
     }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        handleInternal(request, response, (HandlerMethod) handler);
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        return handleInternal(request, response, (HandlerMethod) handler);
     }
 
-    private void handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) {
+    private ModelAndView handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) {
+        ModelAndView mv = null;
         try {
-            invokeHandlerMethod(request, response, handler);
+            mv = invokeHandlerMethod(request, response, handler);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return mv;
     }
 
-    protected void invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+    protected ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
         WebDataBinderFactory binderFactory = new WebDataBinderFactory();
         Parameter[] methodParameters = handlerMethod.getMethod().getParameters();
         Object[] methodParamObjs = new Object[methodParameters.length];
@@ -61,9 +82,26 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
 
         Method invocableMethod = handlerMethod.getMethod();
         Object returnObj = invocableMethod.invoke(handlerMethod.getBean(), methodParamObjs);
+        Class<?> returnType = invocableMethod.getReturnType();
 
-        response.getWriter().append(returnObj.toString());
+        ModelAndView mav = null;
 
+        //ResponseBody 注解的方法，返回值转成字符串，写入 response
+        if (invocableMethod.isAnnotationPresent(ResponseBody.class)){
+            this.messageConverter.write(returnObj, response);
+        }else if (returnType == void.class) {
+        }
+        else {
+            if (returnObj instanceof ModelAndView) {
+                mav = (ModelAndView)returnObj;
+            }
+            else if(returnObj instanceof String) {
+                String sTarget = (String)returnObj;
+                mav = new ModelAndView();
+                mav.setViewName(sTarget);
+            }
+        }
+        return mav;
     }
 
     public WebBindingInitializer getWebBindingInitializer() {

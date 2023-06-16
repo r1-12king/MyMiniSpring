@@ -10,5 +10,5 @@ import javax.servlet.http.HttpServletResponse;
  * @date: 2023-06-11 21:35
  **/
 public interface HandlerAdapter {
-    void handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+    ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
 }

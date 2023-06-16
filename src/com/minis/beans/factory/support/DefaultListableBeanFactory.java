@@ -43,7 +43,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				result.add(beanName);
 			}
 		}
-		return (String[]) result.toArray();
+		return result.toArray(new String[0]);
 
 	}
 
