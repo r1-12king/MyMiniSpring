@@ -23,5 +23,6 @@
     <orderEntry type="library" name="lombok-1.18.24" level="project" />
     <orderEntry type="library" name="dom4j-1.6.11" level="project" />
     <orderEntry type="library" name="servlet-api" level="project" />
+    <orderEntry type="library" name="mysql-connector-java-5.1.49" level="project" />
   </component>
 </module>
