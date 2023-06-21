@@ -13,6 +13,7 @@ import com.minis.context.SimpleApplicationEventPublisher;
 
 import javax.servlet.ServletContext;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;

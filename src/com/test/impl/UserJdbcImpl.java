@@ -1,6 +1,6 @@
 package com.test.impl;
 
-import com.minis.jdbc.JdbcTemplate;
+import com.minis.jdbc.core.OldJdbcTemplate;
 import com.test.entity.User;
 
 import java.sql.ResultSet;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * @author: luguilin
  * @date: 2023-06-20 10:56
  **/
-public class UserJdbcImpl extends JdbcTemplate {
+public class UserJdbcImpl extends OldJdbcTemplate{
     @Override
     protected Object doInStatement(ResultSet rs) {
         //从jdbc数据集读取数据，并生成对象返回

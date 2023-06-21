@@ -19,6 +19,21 @@
 	<bean id="handlerMapping" class="com.minis.web.servlet.RequestMappingHandlerMapping">
 	</bean>
 
+	<bean id="dataSource" class="com.minis.jdbc.dataSource.SingleConnectionDataSource">
+		<property type="String" name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property type="String" name="url" value="jdbc:mysql://localhost:3306/test"/>
+		<property type="String" name="username" value="root"/>
+		<property type="String" name="password" value="271828lgl"/>
+	</bean>
+
+
+	<bean id="jdbcTemplate" class="com.minis.jdbc.core.JdbcTemplate" >
+		<property type="javax.sql.DataSource" name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="userService" class="com.test.impl.UserService">
+	</bean>
+
 	<bean id="handlerAdapter" class="com.minis.web.servlet.RequestMappingHandlerAdapter">
 		<property type="com.minis.http.converter.HttpMessageConverter" name="messageConverter" ref="messageConverter"/>
 		<property type="com.test.WebBindingInitializer" name="webBindingInitializer" ref="webBindingInitializer"/>

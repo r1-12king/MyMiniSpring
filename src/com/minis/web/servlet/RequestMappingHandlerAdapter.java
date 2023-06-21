@@ -39,6 +39,7 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
 
 
     public RequestMappingHandlerAdapter() {
+
     }
 
     public RequestMappingHandlerAdapter(WebApplicationContext wac) {

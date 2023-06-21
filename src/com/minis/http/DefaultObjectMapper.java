@@ -40,6 +40,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     }
 
     public DefaultObjectMapper() {
+
     }
 
     @Override

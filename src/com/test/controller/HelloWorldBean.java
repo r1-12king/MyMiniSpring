@@ -1,9 +1,11 @@
 package com.test.controller;
 
 
+import com.minis.beans.factory.annotation.Autowired;
 import com.minis.web.RequestMapping;
 import com.minis.web.bind.annotation.ResponseBody;
 import com.test.entity.User;
+import com.test.impl.UserService;
 
 import java.util.Date;
 
@@ -13,6 +15,10 @@ import java.util.Date;
  * @date: 2023-06-09 11:16
  **/
 public class HelloWorldBean {
+
+    @Autowired
+    private UserService userService;
+
     public String doGet() {
         return "hello world!";
     }
@@ -37,6 +43,12 @@ public class HelloWorldBean {
     public User doTest7(User user) {
         user.setName(user.getName() + "---");
         user.setBirth(new Date());
+        return user;
+    }
+
+    @RequestMapping("/test8")
+    public User doTest8() {
+        User user = userService.getUserInfo(1);
         return user;
     }
 }
