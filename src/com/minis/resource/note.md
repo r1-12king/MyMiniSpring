@@ -108,3 +108,9 @@ MVC 是 Spring 框架的核心组成部分之一，负责实现一个 Web 应用
 ![mvc-0.3](.note_images/b0452197.png)
 
 ![mvc-0.4](.note_images/986d7cfc.png)
+
+
+
+### jdbc 0.1 
+1. 新增基础的jdbc
+2. 修改@Autowired注解失败的bug

@@ -30,7 +30,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throws BeansException {
 
         Object result = existingBean;
-        for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
+        List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
+        for (BeanPostProcessor beanProcessor : beanPostProcessors) {
             beanProcessor.setBeanFactory(this);
             result = beanProcessor.postProcessBeforeInitialization(result, beanName);
             if (result == null) {

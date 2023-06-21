@@ -42,7 +42,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
             }
         }
 
-        return null;
+        return result;
     }
 
     @Override
