@@ -8,6 +8,7 @@ import com.test.entity.User;
 import com.test.impl.UserService;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -50,5 +51,12 @@ public class HelloWorldBean {
     public User doTest8() {
         User user = userService.getUserInfo(1);
         return user;
+    }
+
+    @RequestMapping("/test9")
+    @ResponseBody
+    public List<User> doTest9() {
+        List<User> users = userService.getLargerUserInfo(1);
+        return users;
     }
 }

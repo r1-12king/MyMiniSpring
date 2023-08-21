@@ -1,11 +1,14 @@
 package com.minis.jdbc.core;
 
+import com.minis.jdbc.pool.PooledDataSource;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 
 /**
  * @description: jdbc template
@@ -16,17 +19,18 @@ public class JdbcTemplate {
 
     private DataSource dataSource;
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+    private PooledDataSource pooledDataSource;
+
+    public JdbcTemplate() {
+
     }
 
     public DataSource getDataSource() {
         return this.dataSource;
     }
 
-
-    public JdbcTemplate() {
-
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public Object query(StatementCallback stmtcallback) {
@@ -60,19 +64,8 @@ public class JdbcTemplate {
         try {
             con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
-            if (args != null) {
-                for (int i = 0; i < args.length; i++) {
-                    Object arg = args[i];
-                    if (arg instanceof String) {
-                        pstmt.setString(i + 1, (String) arg);
-                    } else if (arg instanceof Integer) {
-                        pstmt.setInt(i + 1, (int) arg);
-                    } else if (arg instanceof java.util.Date) {
-                        pstmt.setDate(i + 1, new java.sql.Date(((java.util.Date) arg).getTime()));
-
-                    }
-                }
-            }
+            ArgumentPreparedStatementSetter argumentPreparedStatementSetter = new ArgumentPreparedStatementSetter(args);
+            argumentPreparedStatementSetter.setValues(pstmt);
             return pstmtcallback.doInPreparedStatement(pstmt);
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,6 +75,33 @@ public class JdbcTemplate {
                 con.close();
             } catch (Exception e) {
 
+            }
+        }
+        return null;
+    }
+
+
+    public <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper) {
+        RowMapperResultSetExtractor<T> rowMapperResultSetExtractor = new RowMapperResultSetExtractor<>(rowMapper);
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = pooledDataSource.getConnection();
+            pstmt = con.prepareStatement(sql);
+            ArgumentPreparedStatementSetter argumentPreparedStatementSetter = new ArgumentPreparedStatementSetter(args);
+            argumentPreparedStatementSetter.setValues(pstmt);
+            rs = pstmt.executeQuery();
+            return rowMapperResultSetExtractor.extractData(rs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return null;

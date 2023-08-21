@@ -26,6 +26,14 @@
 		<property type="String" name="password" value="271828lgl"/>
 	</bean>
 
+	<bean id="dataSource" class="com.minis.jdbc.pool.PooledDataSource">
+		<property name="url" value="jdbc:mysql://localhost:3306/test"/>
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="username" value="root"/>
+		<property name="password" value="271828lgl"/>
+		<property type="int" name="initialSize" value="3"/>
+	</bean>
+
 
 	<bean id="jdbcTemplate" class="com.minis.jdbc.core.JdbcTemplate" >
 		<property type="javax.sql.DataSource" name="dataSource" ref="dataSource"/>
