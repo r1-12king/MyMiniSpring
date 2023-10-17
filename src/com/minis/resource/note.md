@@ -120,3 +120,18 @@ MVC 是 Spring 框架的核心组成部分之一，负责实现一个 Web 应用
 1、参数传入修改
 2、对返回结果的处理- 返回成为一个对象
 3、数据库池化处理 - 省去多次创建数据库连接的时间
+
+### jdbc 0.3
+1、mbatis
+
+### aop 0.1
+1、动态代理
+2、
++ Spring 中有两种类型的Bean，一种是普通Bean，另一种是工厂Bean 即 FactoryBean。FactoryBean跟普通Bean不同，其返回的对象不是指定类的一个实例，而是该FactoryBean的getObject方法所返回的对象。创建出来的对象是否属于单例由isSingleton中的返回决定。
++ 一般情况下，Spring通过反射机制利用的class属性指定实现类实例化Bean，在某些情况下，实例化Bean过程比较复杂，如果按照传统的方式，则需要在中提供大量的配置信息。配置方式的灵活性是受限的，这时采用编码的方式可能会得到一个简单的方案。Spring为此提供了一个org.springframework.bean.factory.FactoryBean的工厂类接口，用户可以通过实现该接口定制实例化Bean的逻辑。FactoryBean接口对于Spring框架来说占用重要的地位，Spring自身就提供了70多个FactoryBean的实现。它们隐藏了实例化一些复杂Bean的细节，给上层应用带来了便利。从Spring3.0开始，FactoryBean开始支持泛型，即接口声明改为FactoryBean的形式
++ 以Bean结尾，表示它是一个Bean，不同于普通Bean的是：它是实现了FactoryBean接口的Bean，根据该Bean的ID从BeanFactory中获取的实际上是FactoryBean的getObject()返回的对象，而不是FactoryBean本身
+
+3、
++ 介绍了代理模式实现的静态代理，然后使用了 JDK 的动态代理技术。在使用动态代理技术的程序代码中，我们发现它是侵入式的，不理想，所以我们就想办法把代理配置在 XML 文件里了。
++ 但是如果按照原有的 Bean 的定义，这个配置在外部文件里的代理 Bean 本身不能代理业务类，我们真正需要的是通过这个代理 Bean 来创建一个动态代理，于是引入了 FactoryBean 的概念，不是直接获取这个 Bean 本身，而是通过里面的 getObject() 获取到 Factory Bean 里面包含的对象。
++ 这样将 IoC 容器里的 Bean 分成了两类：一是普通的 Bean，二是 Factory Bean。在 getObject() 的实现中，我们使用 JDK 的动态代理技术创建了一个代理。这样就实现了 AOP。

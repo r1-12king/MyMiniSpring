@@ -3,6 +3,7 @@ package com.minis.beans.factory.support;
 import com.minis.beans.BeansException;
 import com.minis.beans.PropertyValue;
 import com.minis.beans.PropertyValues;
+import com.minis.beans.factory.FactoryBean;
 import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConstructorArgumentValue;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanDefinitionRegistry, ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements BeanDefinitionRegistry, ConfigurableBeanFactory {
     private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
     protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
     protected List<String> beanDefinitionNames = new ArrayList<>();
@@ -71,6 +72,20 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                     return null;
                 }
             }
+        } else {
+            System.out.println("bean exist -------------- " + beanName + "----------------" + singleton);
+        }
+        //        if (singleton == null) {
+        //        	throw new BeansException("bean is null.");
+        //        }
+
+        //process Factory Bean
+        if (singleton instanceof FactoryBean) {
+            System.out.println("factory bean -------------- " + beanName + "----------------" + singleton);
+            return this.getObjectForBeanInstance(singleton, beanName);
+        } else {
+            System.out.println("normal bean -------------- " + beanName + "----------------" + singleton);
+
         }
 
         return singleton;
@@ -255,6 +270,18 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                 }
             }
         }
+    }
+
+    protected Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        // Now we have the bean instance, which may be a normal bean or a FactoryBean.
+        if (!(beanInstance instanceof FactoryBean)) {
+            return beanInstance;
+        }
+
+        Object object = null;
+        FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
+        object = getObjectFromFactoryBean(factory, beanName);
+        return object;
     }
 
     abstract public void applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException;

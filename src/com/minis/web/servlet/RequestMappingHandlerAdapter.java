@@ -73,13 +73,22 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter {
 
         int i = 0;
         for (Parameter methodParameter : methodParameters) {
-            Object methodParamObj = methodParameter.getType().newInstance();
-            WebDataBinder wdb = binderFactory.createBinder(request, methodParamObj, methodParameter.getName());
-            webBindingInitializer.initBinder(wdb);
-            wdb.bind(request);
-            methodParamObjs[i] = methodParamObj;
+            if (methodParameter.getType()!=HttpServletRequest.class && methodParameter.getType()!=HttpServletResponse.class) {
+                Object methodParamObj = methodParameter.getType().newInstance();
+                WebDataBinder wdb = binderFactory.createBinder(request, methodParamObj, methodParameter.getName());
+                webBindingInitializer.initBinder(wdb);
+                wdb.bind(request);
+                methodParamObjs[i] = methodParamObj;
+            }
+            else if (methodParameter.getType()==HttpServletRequest.class) {
+                methodParamObjs[i] = request;
+            }
+            else if (methodParameter.getType()==HttpServletResponse.class) {
+                methodParamObjs[i] = response;
+            }
             i++;
         }
+
 
         Method invocableMethod = handlerMethod.getMethod();
         Object returnObj = invocableMethod.invoke(handlerMethod.getBean(), methodParamObjs);

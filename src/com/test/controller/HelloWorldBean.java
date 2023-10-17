@@ -4,9 +4,13 @@ package com.test.controller;
 import com.minis.beans.factory.annotation.Autowired;
 import com.minis.web.RequestMapping;
 import com.minis.web.bind.annotation.ResponseBody;
+import com.test.IAction;
 import com.test.entity.User;
 import com.test.impl.UserService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -65,5 +69,19 @@ public class HelloWorldBean {
     public User doTest10() {
         User users = userService.getUserInfoByMbatis(1);
         return users;
+    }
+
+    @Autowired
+    IAction action;
+
+    @RequestMapping("/test-aop")
+    public void doTestAop(HttpServletRequest request, HttpServletResponse response) {
+        action.doAction();
+        String str = "test aop, hello world!";
+        try {
+            response.getWriter().write(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
