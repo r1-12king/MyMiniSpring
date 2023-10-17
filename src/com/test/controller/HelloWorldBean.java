@@ -59,4 +59,11 @@ public class HelloWorldBean {
         List<User> users = userService.getLargerUserInfo(1);
         return users;
     }
+
+    @RequestMapping("/test10")
+    @ResponseBody
+    public User doTest10() {
+        User users = userService.getUserInfoByMbatis(1);
+        return users;
+    }
 }

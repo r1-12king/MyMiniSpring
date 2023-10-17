@@ -19,12 +19,12 @@
 	<bean id="handlerMapping" class="com.minis.web.servlet.RequestMappingHandlerMapping">
 	</bean>
 
-	<bean id="dataSource" class="com.minis.jdbc.dataSource.SingleConnectionDataSource">
-		<property type="String" name="driverClassName" value="com.mysql.jdbc.Driver"/>
-		<property type="String" name="url" value="jdbc:mysql://localhost:3306/test"/>
-		<property type="String" name="username" value="root"/>
-		<property type="String" name="password" value="271828lgl"/>
-	</bean>
+<!--	<bean id="dataSource" class="com.minis.jdbc.dataSource.SingleConnectionDataSource">-->
+<!--		<property type="String" name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
+<!--		<property type="String" name="url" value="jdbc:mysql://localhost:3306/test"/>-->
+<!--		<property type="String" name="username" value="root"/>-->
+<!--		<property type="String" name="password" value="271828lgl"/>-->
+<!--	</bean>-->
 
 	<bean id="dataSource" class="com.minis.jdbc.pool.PooledDataSource">
 		<property name="url" value="jdbc:mysql://localhost:3306/test"/>
@@ -61,6 +61,10 @@
 		<property type="String" name="viewClassName" value="com.minis.web.servlet.JstlView" />
 		<property type="String" name="prefix" value="/jsp/" />
 		<property type="String" name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="com.minis.mbatis.DefaultSqlSessionFactory" init-method="init">
+		<property type="String" name="mapperLocations" value="mapper"/>
 	</bean>
 
 </beans>

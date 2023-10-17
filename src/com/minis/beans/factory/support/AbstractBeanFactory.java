@@ -77,7 +77,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
 
     private void invokeInitMethod(BeanDefinition beanDefinition, Object obj) {
-        Class<?> clz = beanDefinition.getClass();
+        Class<?> clz = obj.getClass();
+        clz =  obj.getClass();
         Method method = null;
         try {
             method = clz.getMethod(beanDefinition.getInitMethodName());
@@ -227,11 +228,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                     if ("String".equals(pType) || "java.lang.String".equals(pType)) {
                         paramTypes[0] = String.class;
                     } else if ("Integer".equals(pType) || "java.lang.Integer".equals(pType)) {
-                        paramTypes[i] = Integer.class;
+                        paramTypes[0] = Integer.class;
                     } else if ("int".equals(pType)) {
-                        paramTypes[i] = int.class;
+                        paramTypes[0] = int.class;
                     } else {
-                        paramTypes[i] = String.class;
+                        paramTypes[0] = String.class;
                     }
                     paramValues[0] = pValue;
                 } else {//is ref, create the dependent beans

@@ -4,6 +4,8 @@ import com.minis.beans.factory.annotation.Autowired;
 import com.minis.jdbc.core.JdbcTemplate;
 import com.minis.jdbc.core.OldJdbcTemplate;
 import com.minis.jdbc.core.RowMapper;
+import com.minis.mbatis.SqlSession;
+import com.minis.mbatis.SqlSessionFactory;
 import com.test.entity.User;
 
 import java.sql.ResultSet;
@@ -84,6 +86,27 @@ public class UserService {
                 rtnUser.setBirth(new java.util.Date(rs.getDate("birth").getTime()));
                 return rtnUser;
             }
+        });
+    }
+
+    @Autowired
+    SqlSessionFactory sqlSessionFactory;
+
+    public User getUserInfoByMbatis(int userid) {
+        //final String sql = "select id, name,birthday from users where id=?";
+        String sqlid = "com.test.entity.User.getUserInfo";
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        return (User) sqlSession.selectOne(sqlid, new Object[]{new Integer(userid)}, (pstmt) -> {
+            ResultSet rs = pstmt.executeQuery();
+            User rtnUser = null;
+            if (rs.next()) {
+                rtnUser = new User();
+                rtnUser.setId(userid);
+                rtnUser.setName(rs.getString("name"));
+                rtnUser.setBirth(new java.util.Date(rs.getDate("birth").getTime()));
+            } else {
+            }
+            return rtnUser;
         });
     }
 }
