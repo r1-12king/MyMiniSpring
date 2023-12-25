@@ -13,5 +13,5 @@ public interface AopProxyFactory {
      * @param target
      * @return
      */
-    AopProxy createAopProxy(Object target);
+    AopProxy createAopProxy(Object target, Advisor adviseor);
 }

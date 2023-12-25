@@ -1,5 +1,8 @@
 package com.minis.aop;
 
+import com.minis.beans.BeansException;
+import com.minis.beans.factory.BeanFactory;
+import com.minis.beans.factory.BeanFactoryAware;
 import com.minis.beans.factory.FactoryBean;
 import com.minis.util.ClassUtils;
 
@@ -9,7 +12,7 @@ import com.minis.util.ClassUtils;
  * @author: luguilin
  * @date: 2023-10-17 22:18
  **/
-public class ProxyFactoryBean implements FactoryBean<Object> {
+public class ProxyFactoryBean implements FactoryBean<Object>, BeanFactoryAware {
     private AopProxyFactory aopProxyFactory;
     private String[] interceptorNames;
     private String targetName;
@@ -17,8 +20,40 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
     private ClassLoader proxyClassLoader = ClassUtils.getDefaultClassLoader();
     private Object singletonInstance;
 
+    private BeanFactory beanFactory;
+    private String interceptorName;
+    private Advisor advisor;
+
     public ProxyFactoryBean() {
         this.aopProxyFactory = new DefaultAopProxyFactory();
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
+
+    private synchronized void initializeAdvisor() {
+        Object advice = null;
+        MethodInterceptor mi = null;
+        try {
+            advice = this.beanFactory.getBean(this.interceptorName);
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
+        if (advice instanceof BeforeAdvice) {
+            mi = new MethodBeforeAdviceInterceptor((MethodBeforeAdvice) advice);
+        } else if (advice instanceof AfterAdvice) {
+            mi = new AfterReturningAdviceInterceptor((AfterReturningAdvice) advice);
+        } else if (advice instanceof MethodInterceptor) {
+            mi = (MethodInterceptor) advice;
+        }
+        advisor = new DefaultAdvisor();
+        advisor.setMethodInterceptor(mi);
+    }
+
+    public void setInterceptorName(String interceptorName) {
+        this.interceptorName = interceptorName;
     }
 
     public AopProxyFactory getAopProxyFactory() {
@@ -31,7 +66,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 
     protected AopProxy createAopProxy() {
         System.out.println("----------createAopProxy for :" + target + "--------");
-        return getAopProxyFactory().createAopProxy(target);
+        return getAopProxyFactory().createAopProxy(target, this.advisor);
     }
 
 
@@ -53,6 +88,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 
     @Override
     public Object getObject() throws Exception {
+        initializeAdvisor();
         return getSingletonInstance();
     }
 

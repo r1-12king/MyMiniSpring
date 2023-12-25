@@ -68,9 +68,12 @@
 	</bean>
 
 	<bean id="realAction" class="com.test.impl.Action1" />
+	<bean id="myInterceptor" class="com.minis.aop.TracingInterceptor" />
+	<bean id="myBeforeAdvice" class="com.test.impl.MyBeforeAdvice" />
 
 	<bean id="action" class="com.minis.aop.ProxyFactoryBean" >
 		<property type="java.lang.Object" name="target" ref="realAction"/>
+		<property type="String" name="interceptorName" value="myBeforeAdvice"/>
 	</bean>
 
 </beans>
