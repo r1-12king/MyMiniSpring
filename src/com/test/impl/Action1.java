@@ -16,4 +16,9 @@ public class Action1 implements IAction {
 		
 	}
 
+	@Override
+	public void doSomething() {
+		System.out.println("do something");
+	}
+
 }

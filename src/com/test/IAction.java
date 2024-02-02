@@ -10,4 +10,9 @@ public interface IAction {
 	 * do action
 	 */
 	void doAction();
+
+	/**
+	 * do something
+	 */
+	void doSomething();
 }

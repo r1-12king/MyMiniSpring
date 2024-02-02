@@ -248,14 +248,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                     //对每一个属性，分数据类型分别处理
                     if ("String".equals(pType) || "java.lang.String".equals(pType)) {
                         paramTypes[0] = String.class;
-                    } else if ("Integer".equals(pType) || "java.lang.Integer".equals(pType)) {
-                        paramTypes[0] = Integer.class;
-                    } else if ("int".equals(pType)) {
-                        paramTypes[0] = int.class;
-                    } else {
-                        paramTypes[0] = String.class;
+                        paramValues[0] = pValue;
                     }
-                    paramValues[0] = pValue;
+                    else if ("Integer".equals(pType) || "java.lang.Integer".equals(pType)) {
+                        paramTypes[0] = Integer.class;
+                        paramValues[0] = Integer.valueOf((String) pValue);
+                    }
+                    else if ("int".equals(pType)) {
+                        paramTypes[0] = int.class;
+                        paramValues[0] = Integer.valueOf((String) pValue);
+                    }
+                    else {
+                        paramTypes[0] = String.class;
+                        paramValues[0] = pValue;
+                    }
                 } else {//is ref, create the dependent beans
                     try {
                         paramTypes[0] = Class.forName(pType);

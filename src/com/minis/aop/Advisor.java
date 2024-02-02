@@ -20,4 +20,11 @@ public interface Advisor {
      * @param methodInterceptor
      */
     void setMethodInterceptor(MethodInterceptor methodInterceptor);
+
+    /**
+     * 获取一个advice
+     *
+     * @return
+     */
+    Advice getAdvice();
 }
