@@ -4,6 +4,7 @@ package com.test.controller;
 import com.minis.beans.factory.annotation.Autowired;
 import com.minis.web.RequestMapping;
 import com.minis.web.bind.annotation.ResponseBody;
+import com.test.AService;
 import com.test.IAction;
 import com.test.entity.User;
 import com.test.impl.UserService;
@@ -85,7 +86,7 @@ public class HelloWorldBean {
         }
     }
 
-    @RequestMapping("/testaop2")
+    @RequestMapping("/test-aop2")
     public void doTestAop2(HttpServletRequest request, HttpServletResponse response) {
         action.doSomething();
         String str = "do-something";
@@ -94,5 +95,21 @@ public class HelloWorldBean {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Autowired
+    IAction action1;
+
+    @Autowired
+    AService action2;
+
+    @RequestMapping("/test-aop3")
+    public void doTestAop3(HttpServletRequest request, HttpServletResponse response) {
+        action1.doSomething();
+    }
+
+    @RequestMapping("/test-aop4")
+    public void doTestAop4(HttpServletRequest request, HttpServletResponse response) {
+        action2.doAnything();
     }
 }

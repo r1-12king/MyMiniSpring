@@ -67,14 +67,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
                     // 进行beanpostprocessor处理
                     // step 1: postProcessBeforeInitialization
-                    applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
+                    singleton = applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
                     // step 2: init-method
                     if (beanDefinition.getInitMethodName() != null && !beanDefinition.equals("")) {
                         invokeInitMethod(beanDefinition, singleton);
                     }
                     // step 3: postProcessAfterInitialization
                     applyBeanPostProcessorsAfterInitialization(singleton, beanName);
-                }else{
+                    this.removeSingleton(beanName);
+                    this.registerBean(beanName, singleton);
+                } else {
                     return null;
                 }
             }
@@ -91,7 +93,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             return this.getObjectForBeanInstance(singleton, beanName);
         } else {
             System.out.println("normal bean -------------- " + beanName + "----------------" + singleton);
-
         }
 
         return singleton;
@@ -296,9 +297,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return object;
     }
 
-    abstract public void applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException;
+    abstract public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException;
 
-    abstract public void applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException;
+    abstract public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException;
 
 
 }

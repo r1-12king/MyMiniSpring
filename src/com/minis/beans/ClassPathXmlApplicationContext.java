@@ -126,29 +126,29 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-//        String[] bdNames = this.beanFactory.getBeanDefinitionNames();
-//        for (String bdName : bdNames) {
-//            BeanDefinition bd = this.beanFactory.getBeanDefinition(bdName);
-//            String clzName = bd.getClassName();
-//            Class<?> clz = null;
-//            try {
-//                clz = Class.forName(clzName);
-//            } catch (ClassNotFoundException e1) {
-//                e1.printStackTrace();
-//            }
-//            if (BeanPostProcessor.class.isAssignableFrom(clz)) {
-//                try {
+        String[] bdNames = this.beanFactory.getBeanDefinitionNames();
+        for (String bdName : bdNames) {
+            BeanDefinition bd = this.beanFactory.getBeanDefinition(bdName);
+            String clzName = bd.getClassName();
+            Class<?> clz = null;
+            try {
+                clz = Class.forName(clzName);
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
+            if (BeanPostProcessor.class.isAssignableFrom(clz)) {
+                System.out.println(" registerBeanPostProcessors : " + clzName);
+                try {
 //                    this.beanFactory.addBeanPostProcessor((BeanPostProcessor) clz.newInstance());
-//                } catch (InstantiationException e) {
-//                    e.printStackTrace();
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
-        int beanPostProcessorCount = beanFactory.getBeanPostProcessorCount();
-        System.out.println("beanPostProcessorCount: " + beanPostProcessorCount);
+                    this.beanFactory.addBeanPostProcessor((BeanPostProcessor)(this.beanFactory.getBean(bdName)));
+                } catch (BeansException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+//        int beanPostProcessorCount = beanFactory.getBeanPostProcessorCount();
+//        System.out.println("beanPostProcessorCount: " + beanPostProcessorCount);
     }
 
     @Override
@@ -166,12 +166,6 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     @Override
     public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
         return this.beanFactory;
-    }
-
-
-    @Override
-    public Object getBean(String beanName) throws BeansException {
-        return this.beanFactory.getBean(beanName);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ProxyFactoryBean implements FactoryBean<Object>, BeanFactoryAware {
 
     private synchronized void initializeAdvisor() {
         Object advice = null;
-        MethodInterceptor mi = null;
+//        MethodInterceptor mi = null;
         try {
             advice = this.beanFactory.getBean(this.interceptorName);
         } catch (BeansException e) {
@@ -88,7 +88,7 @@ public class ProxyFactoryBean implements FactoryBean<Object>, BeanFactoryAware {
         if (this.singletonInstance == null) {
             this.singletonInstance = getProxy(createAopProxy());
         }
-        System.out.println("----------return proxy for :" + this.singletonInstance + "--------" + this.singletonInstance.getClass());
+//        System.out.println("----------return proxy for :" + this.singletonInstance + "--------" + this.singletonInstance.getClass());
 
         return this.singletonInstance;
     }

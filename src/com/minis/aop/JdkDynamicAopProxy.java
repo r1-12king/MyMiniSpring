@@ -23,18 +23,19 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler {
 
     @Override
     public Object getProxy() {
-        System.out.println("----------Proxy new psroxy instance for  ---------" + target);
-        System.out.println("----------Proxy new psroxy instance classloader ---------" + JdkDynamicAopProxy.class.getClassLoader());
-        System.out.println("----------Proxy new psroxy instance interfaces  ---------" + Arrays.toString(target.getClass().getInterfaces()));
+//        System.out.println("----------Proxy new psroxy instance for  ---------" + target);
+//        System.out.println("----------Proxy new psroxy instance classloader ---------" + JdkDynamicAopProxy.class.getClassLoader());
+//        System.out.println("----------Proxy new psroxy instance interfaces  ---------" + Arrays.toString(target.getClass().getInterfaces()));
 
-        Object obj = Proxy.newProxyInstance(JdkDynamicAopProxy.class.getClassLoader(), target.getClass().getInterfaces(), this);
+//        Object obj = Proxy.newProxyInstance(JdkDynamicAopProxy.class.getClassLoader(), target.getClass().getInterfaces(), this);
         // 注意，这里的obj是一个代理对像
-        System.out.println("----------Proxy new psroxy instance created r ---------" + obj);
-        return obj;
+//        System.out.println("----------Proxy new psroxy instance created r ---------" + obj);
+        return Proxy.newProxyInstance(JdkDynamicAopProxy.class.getClassLoader(), target.getClass().getInterfaces(), this);
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        System.out.println("执行方法调用");
         Class<?> targetClass = (target != null ? target.getClass() : null);
         if (this.advisor.getPointcut().getMethodMatcher().matches(method, targetClass)) {
             MethodInterceptor interceptor = this.advisor.getMethodInterceptor();

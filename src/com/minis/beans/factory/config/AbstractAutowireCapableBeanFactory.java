@@ -7,8 +7,11 @@ import com.minis.beans.factory.support.BeanPostProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author admin
+ */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
-    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     @Override
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
@@ -26,7 +29,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    public void applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
+    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
             throws BeansException {
 
         Object result = existingBean;
@@ -35,21 +38,23 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             beanProcessor.setBeanFactory(this);
             result = beanProcessor.postProcessBeforeInitialization(result, beanName);
             if (result == null) {
-                return;
+                return null;
             }
         }
+        return result;
     }
 
     @Override
-    public void applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
+    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
             throws BeansException {
 
         Object result = existingBean;
         for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
             result = beanProcessor.postProcessAfterInitialization(result, beanName);
             if (result == null) {
-                return;
+                return null;
             }
         }
+        return result;
     }
 }

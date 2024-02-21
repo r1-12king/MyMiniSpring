@@ -50,6 +50,11 @@ public class AServiceImpl implements AService {
         System.out.println("a service 1 say hello");
     }
 
+    @Override
+    public void doAnything() {
+
+    }
+
     public BaseService getRef1() {
         return ref1;
     }

@@ -21,22 +21,20 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         Object result = bean;
         Class<?> clazz = bean.getClass();
         Field[] declaredFields = clazz.getDeclaredFields();
-        if (declaredFields != null) {
-            //对每一个属性进行判断，如果带有@Autowired注解则进行处理
-            for (Field declaredField : declaredFields) {
-                Autowired annotation = declaredField.getAnnotation(Autowired.class);
-                if (annotation != null) {
-                    String name = declaredField.getName();
-                    Object autowiredBean = this.getBeanFactory().getBean(name);
-                    if (autowiredBean != null) {
+        //对每一个属性进行判断，如果带有@Autowired注解则进行处理
+        for (Field declaredField : declaredFields) {
+            boolean isAutowired = declaredField.isAnnotationPresent(Autowired.class);
+            if(isAutowired){
+                String name = declaredField.getName();
+                Object autowiredBean = this.getBeanFactory().getBean(name);
+                if (autowiredBean != null) {
+                    declaredField.setAccessible(true);
+                    try {
                         declaredField.setAccessible(true);
-                        try {
-                            declaredField.setAccessible(true);
-                            declaredField.set(bean, autowiredBean);
-                            System.out.println("autowire " + name + " for bean " + beanName);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
+                        declaredField.set(bean, autowiredBean);
+                        System.out.println("autowire " + name + " for bean " + beanName);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
                     }
                 }
             }
